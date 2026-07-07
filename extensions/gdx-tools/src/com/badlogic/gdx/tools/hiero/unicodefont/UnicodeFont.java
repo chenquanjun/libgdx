@@ -136,13 +136,26 @@ public class UnicodeFont {
 		font = baseFont.deriveFont(attributes);
 
 		metrics = GlyphPage.scratchGraphics.getFontMetrics(font);
-		ascent = metrics.getAscent();
-		descent = metrics.getDescent();
 		leading = metrics.getLeading();
 
-		// Determine width of space glyph (getGlyphPixelBounds gives a width of zero).
-		char[] chars = " ".toCharArray();
+		char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()".toCharArray();
 		GlyphVector vector = font.layoutGlyphVector(GlyphPage.renderContext, chars, 0, chars.length, Font.LAYOUT_LEFT_TO_RIGHT);
+
+		ascent = 0;
+		descent = 0;
+		for (int i = 0, n = vector.getNumGlyphs(); i < n; i++) {
+			Rectangle bounds = vector.getGlyphPixelBounds(i, GlyphPage.renderContext, 0, 0);
+			int glyphAscent = -bounds.y;
+			int glyphDescent = bounds.y + bounds.height;
+			ascent = Math.max(ascent, glyphAscent);
+			descent = Math.max(descent, glyphDescent);
+		}
+
+		if (ascent == 0) ascent = metrics.getAscent();
+		if (descent == 0) descent = metrics.getDescent();
+
+		chars = " ".toCharArray();
+		vector = font.layoutGlyphVector(GlyphPage.renderContext, chars, 0, chars.length, Font.LAYOUT_LEFT_TO_RIGHT);
 		spaceWidth = vector.getGlyphLogicalBounds(0).getBounds().width;
 	}
 
