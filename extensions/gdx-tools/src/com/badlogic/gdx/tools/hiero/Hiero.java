@@ -1365,7 +1365,9 @@ public class Hiero extends JFrame {
 
 			batch = new SpriteBatch();
 
-			sampleNeheButton.doClick();
+			if (!batchMode) {
+				sampleNeheButton.doClick();
+			}
 		}
 
 		public void resize (int width, int height) {
@@ -1461,6 +1463,30 @@ public class Hiero extends JFrame {
 
 			if (saveBmFontFile != null) {
 				try {
+					if (batchMode) {
+						while (unicodeFont.loadGlyphs()) {
+						}
+					}
+
+					if (!batchMode && !unicodeFont.areAllGlyphsLoaded()) {
+						final boolean[] confirmed = {false};
+						final File finalSaveBmFontFile = saveBmFontFile;
+						SwingUtilities.invokeAndWait(new Runnable() {
+							public void run () {
+								int option = javax.swing.JOptionPane.showConfirmDialog(Hiero.this,
+									"Not all glyphs have been rendered yet. Some characters may be missing from the output. Continue saving?",
+									"Glyphs Not Fully Rendered", javax.swing.JOptionPane.YES_NO_OPTION);
+								if (option == javax.swing.JOptionPane.YES_OPTION) {
+									confirmed[0] = true;
+								}
+							}
+						});
+						if (!confirmed[0]) {
+							saveBmFontFile = null;
+							return;
+						}
+					}
+
 					BMFontUtil bmFont = new BMFontUtil(unicodeFont);
 					bmFont.save(saveBmFontFile);
 

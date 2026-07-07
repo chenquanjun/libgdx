@@ -624,6 +624,10 @@ public class UnicodeFont {
 		return effects;
 	}
 
+	public boolean areAllGlyphsLoaded () {
+		return queuedGlyphs.isEmpty();
+	}
+
 	public boolean getMono () {
 		return mono;
 	}
